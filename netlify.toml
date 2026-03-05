@@ -1,0 +1,11 @@
+[build]
+  command = "echo 'Netlify build'"
+  publish = "."
+
+[[redirects]]
+  from = "/*"
+  to = "/app_v2.1_CON_FIRMA.html"
+  status = 200
+
+[context.production.environment]
+  NODE_ENV = "production"

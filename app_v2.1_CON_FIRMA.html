@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrderCloth v2.1 - Con Firma</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1F4788;
+            --primary-light: #2E5FA3;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --border: #E5E7EB;
+            --text: #1F2937;
+            --text-light: #6B7280;
+            --bg: #F9FAFB;
+        }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); 
+            color: white; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header h1 { font-size: 24px; }
+        .admin-btn { 
+            background: rgba(255,255,255,0.2); 
+            border: 1px solid rgba(255,255,255,0.3); 
+            color: white; 
+            padding: 8px 16px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .admin-btn:hover { background: rgba(255,255,255,0.3); }
+        
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        
+        .steps { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 40px; 
+            position: relative; 
+        }
+        .steps::before { 
+            content: ''; 
+            position: absolute; 
+            top: 20px; 
+            left: 0; 
+            right: 0; 
+            height: 2px; 
+            background: var(--border); 
+            z-index: 0; 
+        }
+        .step { 
+            flex: 1; 
+            text-align: center; 
+            position: relative; 
+            z-index: 1; 
+        }
+        .step-number { 
+            width: 40px; 
+            height: 40px; 
+            margin: 0 auto 10px; 
+            background: var(--border); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            color: var(--text-light);
+            transition: all 0.3s;
+        }
+        .step.active .step-number { background: var(--primary); color: white; }
+        .step.completed .step-number { background: var(--success); color: white; }
+        .step-label { font-size: 12px; color: var(--text-light); font-weight: 600; }
+        
+        .card { 
+            background: white; 
+            border-radius: 8px; 
+            padding: 30px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+            border: 1px solid var(--border); 
+        }
+        .card h2 { 
+            margin-bottom: 20px; 
+            color: var(--primary); 
+            font-size: 22px;
+        }
+        .card h3 { 
+            margin: 20px 0 15px 0; 
+            color: var(--primary); 
+            font-size: 16px;
+        }
+        
+        .form-group { margin-bottom: 16px; }
+        label { 
+            display: block; 
+            margin-bottom: 6px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            color: var(--text);
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border: 1px solid var(--border); 
+            border-radius: 6px; 
+            font-size: 14px; 
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(31, 71, 136, 0.1);
+        }
+        
+        .catalogo-selector { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 16px; 
+            margin-top: 16px;
+        }
+        .catalogo-option { 
+            padding: 20px; 
+            border: 2px solid var(--border); 
+            border-radius: 8px; 
+            cursor: pointer; 
+            text-align: center; 
+            transition: all 0.3s;
+        }
+        .catalogo-option:hover { 
+            border-color: var(--primary); 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .catalogo-option.selected { 
+            border-color: var(--primary); 
+            background: linear-gradient(135deg, rgba(31, 71, 136, 0.05), rgba(31, 71, 136, 0.02));
+        }
+        .catalogo-icon { 
+            font-size: 32px; 
+            margin-bottom: 8px;
+        }
+        .catalogo-option h3 { 
+            margin: 0; 
+            font-size: 16px; 
+            color: var(--text);
+        }
+        
+        .selection-box {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .selection-box h3 {
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        
+        .taglie-input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .taglia-input {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .taglia-label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-light);
+            text-align: center;
+        }
+        
+        .taglia-input input {
+            padding: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .btn-group { 
+            display: flex; 
+            gap: 12px; 
+            margin-top: 30px;
+            justify-content: space-between;
+        }
+        .btn { 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s;
+        }
+        .btn-primary { 
+            background: var(--primary); 
+            color: white;
+            flex: 1;
+        }
+        .btn-primary:hover { 
+            background: var(--primary-light); 
+            box-shadow: 0 4px 12px rgba(31, 71, 136, 0.3);
+        }
+        .btn-secondary { 
+            background: white; 
+            color: var(--primary); 
+            border: 2px solid var(--primary);
+            flex: 1;
+        }
+        .btn-secondary:hover { 
+            background: var(--primary); 
+            color: white;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            flex: none;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .articoli-list {
+            margin-top: 24px;
+        }
+        
+        .articolo-item {
+            background: #f9fafb;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .articolo-info {
+            flex: 1;
+        }
+        
+        .articolo-header{
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .articolo-details{
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+        
+        .articolo-prezzo{
+            font-weight: 600;
+            color: var(--success);
+            font-size: 14px;
+        }
+        
+        .articolo-actions{
+            display: flex;
+            gap: 8px;
+            margin-left: 16px;
+        }
+        
+        .btn-delete{
+            background: var(--danger);
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .btn-delete:hover{
+            background: #DC2626;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 13px;
+        }
+        
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .riepilogo-box { 
+            background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); 
+            padding: 16px; 
+            border-radius: 8px; 
+            margin: 20px 0; 
+            border: 1px solid var(--border);
+        }
+        .riepilogo-row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 8px; 
+            font-size: 14px;
+        }
+        .riepilogo-total { 
+            border-top: 2px solid var(--border); 
+            padding-top: 12px; 
+            margin-top: 12px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            color: var(--primary);
+        }
+        
+        /* FIRMA CON CANVAS */
+        .firma-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 2px dashed var(--border);
+        }
+        
+        .firma-section h3 {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: var(--primary);
+            font-size: 16px;
+        }
+        
+        .firma-container {
+            position: relative;
+            margin-bottom: 12px;
+        }
+        
+        #signaturePad {
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            cursor: crosshair;
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            touch-action: none;
+        }
+        
+        .firma-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .firma-buttons button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-firma-clear {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-firma-clear:hover {
+            background: #D97706;
+        }
+        
+        .firma-status {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+        
+        .firma-status.signed {
+            color: var(--success);
+            font-weight: 600;
+        }
+        
+        .success-message, .error-message { 
+            padding: 12px; 
+            border-radius: 6px; 
+            margin-bottom: 16px; 
+            display: none;
+            font-size: 14px;
+        }
+        .success-message { 
+            background: #d4edda; 
+            border: 1px solid #c3e6cb; 
+            color: #155724;
+        }
+        .error-message { 
+            background: #f8d7da; 
+            border: 1px solid #f5c6cb; 
+            color: #721c24;
+        }
+        .success-message.show, .error-message.show { 
+            display: block;
+            animation: slideDown 0.3s;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .hidden { display: none; }
+        
+        /* ADMIN MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        
+        .close-btn:hover {
+            color: var(--text);
+        }
+        
+        @media (max-width: 768px) {
+            .catalogo-selector { grid-template-columns: 1fr; }
+            .btn-group { flex-direction: column; }
+            .btn { width: 100%; }
+            .articolo-item { flex-direction: column; align-items: flex-start; }
+            .articolo-actions { margin-left: 0; margin-top: 12px; width: 100%; }
+            .taglie-input-grid { grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); }
+            .firma-buttons { flex-direction: column; }
+            .firma-buttons button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛍️ OrderCloth v2.1</h1>
+        <button class="admin-btn" onclick="openAdminModal()">🔐 Admin</button>
+    </div>
+
+    <div class="container">
+        <!-- STEP INDICATOR -->
+        <div class="steps">
+            <div class="step active" id="step1-indicator">
+                <div class="step-number">1</div>
+                <div class="step-label">Dati Cliente</div>
+            </div>
+            <div class="step" id="step2-indicator">
+                <div class="step-number">2</div>
+                <div class="step-label">Catalogo</div>
+            </div>
+            <div class="step" id="step3-indicator">
+                <div class="step-number">3</div>
+                <div class="step-label">Ordine</div>
+            </div>
+            <div class="step" id="step4-indicator">
+                <div class="step-number">4</div>
+                <div class="step-label">Riepilogo</div>
+            </div>
+        </div>
+
+        <div id="successMessage" class="success-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+
+        <!-- STEP 1: DATI CLIENTE -->
+        <div id="step1" class="card">
+            <h2>📋 Passo 1: Dati Cliente</h2>
+            
+            <div class="form-group">
+                <label>Ragione Sociale *</label>
+                <input type="text" id="ragioneSociale" required>
+            </div>
+
+            <div class="form-group">
+                <label>P.IVA *</label>
+                <input type="text" id="piva" required>
+            </div>
+
+            <div class="form-group">
+                <label>Indirizzo Consegna *</label>
+                <textarea id="indirizzo" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Email Cliente *</label>
+                <input type="email" id="emailCliente" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email Rappresentante *</label>
+                <input type="email" id="emailRappresentante" required>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="goToStep(2)">Avanti →</button>
+            </div>
+        </div>
+
+        <!-- STEP 2: CATALOGO -->
+        <div id="step2" class="card hidden">
+            <h2>🎨 Passo 2: Seleziona Catalogo</h2>
+            <p style="color: var(--text-light); margin-bottom: 20px;">Scegli il catalogo con cui vuoi ordinare:</p>
+            
+            <div class="catalogo-selector">
+                <div class="catalogo-option" onclick="selectCatalogo('sole')">
+                    <div class="catalogo-icon">☀️</div>
+                    <h3>Catalogo Sole</h3>
+                    <p style="font-size: 12px; color: var(--text-light);">Prezzi standard</p>
+                </div>
+                <div class="catalogo-option" onclick="selectCatalogo('nuvola')">
+                    <div class="catalogo-icon">☁️</div>
+                    <h3>Catalogo Nuvola</h3>
+                    <p style="font-size: 12px; color: var(--text-light);">Prezzi premium</p>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToStep(1)">← Indietro</button>
+                <button class="btn btn-primary" onclick="goToStep(3)" id="btn-step3" disabled>Avanti →</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: ORDINE -->
+        <div id="step3" class="card hidden">
+            <h2>📦 Passo 3: Seleziona Articoli</h2>
+            
+            <div class="selection-box">
+                <h3>AGGIUNGI ARTICOLO</h3>
+                
+                <div class="form-group">
+                    <label>Seleziona Articolo *</label>
+                    <select id="selectArticolo" onchange="onArticoloSelected()">
+                        <option value="">-- Scegli un articolo --</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="colorSection" style="display: none;">
+                    <label>Seleziona Colore *</label>
+                    <select id="selectColore" onchange="onColoreSelected()">
+                        <option value="">-- Scegli un colore --</option>
+                    </select>
+                </div>
+
+                <div id="taglieSection" style="display: none;">
+                    <label style="display: block; margin-bottom: 12px;">Inserisci Quantità per Taglia</label>
+                    <div class="taglie-input-grid" id="taglieGrid"></div>
+                </div>
+
+                <button class="btn btn-primary btn-small" id="btnAddArticolo" style="display: none; width: 100%; margin-top: 16px;" onclick="addArticolo()">✓ Aggiungi Articolo</button>
+            </div>
+
+            <!-- ARTICOLI AGGIUNTI -->
+            <div class="articoli-list">
+                <h3>ARTICOLI AGGIUNTI</h3>
+                <div id="articoliAggiunti"></div>
+                <div id="emptyMessage" style="color: var(--text-light); font-size: 14px; padding: 16px; text-align: center;">
+                    Nessun articolo aggiunto ancora
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToStep(2)">← Indietro</button>
+                <button class="btn btn-primary" onclick="goToStep(4)">Riepilogo →</button>
+            </div>
+        </div>
+
+        <!-- STEP 4: RIEPILOGO CON FIRMA -->
+        <div id="step4" class="card hidden">
+            <h2>✅ Passo 4: Riepilogo & Firma</h2>
+            
+            <div class="riepilogo-box">
+                <h3 style="margin-top: 0;">Dati Cliente</h3>
+                <div class="riepilogo-row">
+                    <span>Ragione Sociale:</span>
+                    <span id="recap-ragione"></span>
+                </div>
+                <div class="riepilogo-row">
+                    <span>P.IVA:</span>
+                    <span id="recap-piva"></span>
+                </div>
+                <div class="riepilogo-row">
+                    <span>Indirizzo:</span>
+                    <span id="recap-indirizzo"></span>
+                </div>
+            </div>
+
+            <div class="riepilogo-box">
+                <h3 style="margin-top: 0;">Ordine</h3>
+                <div class="riepilogo-row">
+                    <span>Catalogo:</span>
+                    <span id="recap-catalogo"></span>
+                </div>
+                <div class="riepilogo-row">
+                    <span>Numero Articoli:</span>
+                    <span id="recap-count"></span>
+                </div>
+                <div class="riepilogo-row">
+                    <span>Totale:</span>
+                    <span id="recap-totale"></span>
+                </div>
+            </div>
+
+            <div id="recap-articoli"></div>
+
+            <!-- FIRMA CON CANVAS -->
+            <div class="firma-section">
+                <h3>🖊️ Firma Ordine</h3>
+                <p style="color: var(--text-light); font-size: 13px; margin-bottom: 12px;">
+                    Firma qui per confermare l'ordine (touch screen o mouse)
+                </p>
+                
+                <div class="firma-container">
+                    <canvas id="signaturePad" width="800" height="150"></canvas>
+                </div>
+                
+                <div class="firma-buttons">
+                    <button class="btn-firma-clear" onclick="clearSignature()">🗑️ Cancella Firma</button>
+                </div>
+                
+                <div class="firma-status" id="firmaStatus">
+                    ❌ Firma non presente
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToStep(3)">← Modifica Ordine</button>
+                <button class="btn btn-primary" onclick="submitOrder()" id="btnSubmitOrder">📧 Invia Ordine Firmato</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN MODAL -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔐 Admin Panel</h2>
+                <button class="close-btn" onclick="closeAdminModal()">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label>Username *</label>
+                <input type="text" id="adminUsername" placeholder="">
+            </div>
+
+            <div class="form-group">
+                <label>Password *</label>
+                <input type="password" id="adminPassword" placeholder="">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="closeAdminModal()">Annulla</button>
+                <button class="btn btn-primary" onclick="loginAdmin()">Accedi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPER_ADMIN_PASSWORD = 'N\'F8g3gq+KM0';
+
+        let catalogo = [];
+        let catalogoSelezionato = null;
+        let ordineArticoli = [];
+        let currentStep = 1;
+        let appDisabled = false;
+        let firmaDisegnata = false;
+        let signaturePad = null;
+        let signatureContext = null;
+        let isDrawing = false;
+
+        let tempArticoloId = null;
+        let tempColore = null;
+        let tempTaglie = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAppStatus();
+            loadCatalogo();
+            renderSelectArticolo();
+            initSignaturePad();
+        });
+
+        // ============================================================
+        // FIRMA CON CANVAS
+        // ============================================================
+
+        function initSignaturePad() {
+            signaturePad = document.getElementById('signaturePad');
+            signatureContext = signaturePad.getContext('2d');
+            
+            // Imposta lo sfondo bianco
+            signatureContext.fillStyle = '#FFFFFF';
+            signatureContext.fillRect(0, 0, signaturePad.width, signaturePad.height);
+            
+            // Mouse events
+            signaturePad.addEventListener('mousedown', startDrawing);
+            signaturePad.addEventListener('mousemove', draw);
+            signaturePad.addEventListener('mouseup', stopDrawing);
+            signaturePad.addEventListener('mouseout', stopDrawing);
+            
+            // Touch events
+            signaturePad.addEventListener('touchstart', handleTouchStart);
+            signaturePad.addEventListener('touchmove', handleTouchMove);
+            signaturePad.addEventListener('touchend', stopDrawing);
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = signaturePad.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (signaturePad.width / rect.width);
+            const y = (e.clientY - rect.top) * (signaturePad.height / rect.height);
+            
+            signatureContext.beginPath();
+            signatureContext.moveTo(x, y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const rect = signaturePad.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (signaturePad.width / rect.width);
+            const y = (e.clientY - rect.top) * (signaturePad.height / rect.height);
+            
+            signatureContext.lineTo(x, y);
+            signatureContext.lineWidth = 2;
+            signatureContext.lineCap = 'round';
+            signatureContext.lineJoin = 'round';
+            signatureContext.strokeStyle = '#000000';
+            signatureContext.stroke();
+            
+            firmaDisegnata = true;
+            updateFirmaStatus();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            signatureContext.closePath();
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = signaturePad.getBoundingClientRect();
+            const x = (touch.clientX - rect.left) * (signaturePad.width / rect.width);
+            const y = (touch.clientY - rect.top) * (signaturePad.height / rect.height);
+            
+            isDrawing = true;
+            signatureContext.beginPath();
+            signatureContext.moveTo(x, y);
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!isDrawing) return;
+            
+            const touch = e.touches[0];
+            const rect = signaturePad.getBoundingClientRect();
+            const x = (touch.clientX - rect.left) * (signaturePad.width / rect.width);
+            const y = (touch.clientY - rect.top) * (signaturePad.height / rect.height);
+            
+            signatureContext.lineTo(x, y);
+            signatureContext.lineWidth = 2;
+            signatureContext.lineCap = 'round';
+            signatureContext.lineJoin = 'round';
+            signatureContext.strokeStyle = '#000000';
+            signatureContext.stroke();
+            
+            firmaDisegnata = true;
+            updateFirmaStatus();
+        }
+
+        function clearSignature() {
+            signatureContext.fillStyle = '#FFFFFF';
+            signatureContext.fillRect(0, 0, signaturePad.width, signaturePad.height);
+            firmaDisegnata = false;
+            updateFirmaStatus();
+            showSuccess('✅ Firma cancellata');
+        }
+
+        function updateFirmaStatus() {
+            const status = document.getElementById('firmaStatus');
+            if (firmaDisegnata) {
+                status.textContent = '✅ Firma presente';
+                status.classList.add('signed');
+            } else {
+                status.textContent = '❌ Firma non presente';
+                status.classList.remove('signed');
+            }
+        }
+
+        function loadAppStatus() {
+            appDisabled = localStorage.getItem('appDisabled') === 'true';
+        }
+
+        function loadCatalogo() {
+            catalogo = [
+                {
+                    id: 1,
+                    codice: "TS-001",
+                    nome: "T-shirt",
+                    descrizione: "100% Cotone",
+                    colori: ["Nero", "Bianco", "Blu", "Rosso"],
+                    taglie: ["XS", "S", "M", "L", "XL"],
+                    prezzoSole: 12.50,
+                    prezzoNuvola: 14.99
+                },
+                {
+                    id: 2,
+                    codice: "FL-001",
+                    nome: "Felpa",
+                    descrizione: "Cotone misto",
+                    colori: ["Grigio", "Nero", "Rosso", "Blu"],
+                    taglie: ["S", "M", "L", "XL", "XXL"],
+                    prezzoSole: 25.00,
+                    prezzoNuvola: 29.99
+                },
+                {
+                    id: 3,
+                    codice: "PT-001",
+                    nome: "Pantaloni",
+                    descrizione: "Denim 100%",
+                    colori: ["Nero", "Blu", "Grigio", "Cachi"],
+                    taglie: ["28", "30", "32", "34", "36", "38"],
+                    prezzoSole: 35.00,
+                    prezzoNuvola: 42.50
+                },
+                {
+                    id: 4,
+                    codice: "GC-001",
+                    nome: "Giacca",
+                    descrizione: "Poliestere/Cotone",
+                    colori: ["Nero", "Grigio", "Marrone"],
+                    taglie: ["S", "M", "L", "XL"],
+                    prezzoSole: 65.00,
+                    prezzoNuvola: 79.99
+                },
+                {
+                    id: 5,
+                    codice: "BM-001",
+                    nome: "Bermuda",
+                    descrizione: "Cotone 100%",
+                    colori: ["Nero", "Blu", "Khaki", "Rosso"],
+                    taglie: ["XS", "S", "M", "L", "XL"],
+                    prezzoSole: 18.00,
+                    prezzoNuvola: 21.99
+                }
+            ];
+        }
+
+        // ============================================================
+        // NAVIGATION
+        // ============================================================
+
+        function goToStep(step) {
+            if (currentStep === 1 && step === 2) {
+                if (!validateStep1()) {
+                    showError('Riempi tutti i campi obbligatori!');
+                    return;
+                }
+            }
+
+            if (currentStep === 3 && step === 4) {
+                if (ordineArticoli.length === 0) {
+                    showError('Aggiungi almeno un articolo!');
+                    return;
+                }
+            }
+
+            document.getElementById(`step${currentStep}`).classList.add('hidden');
+            document.getElementById(`step${currentStep}-indicator`).classList.remove('active');
+
+            if (currentStep < step) {
+                document.getElementById(`step${currentStep}-indicator`).classList.add('completed');
+            }
+
+            currentStep = step;
+
+            document.getElementById(`step${currentStep}`).classList.remove('hidden');
+            document.getElementById(`step${currentStep}-indicator`).classList.add('active');
+
+            if (step === 4) {
+                renderRiepilogo();
+            }
+
+            document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function validateStep1() {
+            return document.getElementById('ragioneSociale').value &&
+                   document.getElementById('piva').value &&
+                   document.getElementById('indirizzo').value &&
+                   document.getElementById('emailCliente').value &&
+                   document.getElementById('emailRappresentante').value;
+        }
+
+        // ============================================================
+        // CATALOGO SELECTION
+        // ============================================================
+
+        function selectCatalogo(tipo) {
+            catalogoSelezionato = tipo;
+            
+            document.querySelectorAll('.catalogo-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.target.closest('.catalogo-option').classList.add('selected');
+            document.getElementById('btn-step3').disabled = false;
+        }
+
+        // ============================================================
+        // STEP 3: SELEZIONE ARTICOLI
+        // ============================================================
+
+        function renderSelectArticolo() {
+            const select = document.getElementById('selectArticolo');
+            select.innerHTML = '<option value="">-- Scegli un articolo --</option>';
+            
+            catalogo.forEach(art => {
+                const option = document.createElement('option');
+                option.value = art.id;
+                option.textContent = `${art.codice} - ${art.nome}`;
+                select.appendChild(option);
+            });
+        }
+
+        function onArticoloSelected() {
+            const id = document.getElementById('selectArticolo').value;
+            
+            if (!id) {
+                document.getElementById('colorSection').style.display = 'none';
+                document.getElementById('taglieSection').style.display = 'none';
+                document.getElementById('btnAddArticolo').style.display = 'none';
+                tempArticoloId = null;
+                tempColore = null;
+                return;
+            }
+
+            tempArticoloId = parseInt(id);
+            tempColore = null;
+            tempTaglie = {};
+
+            const articolo = catalogo.find(a => a.id === tempArticoloId);
+            
+            const selectColore = document.getElementById('selectColore');
+            selectColore.innerHTML = '<option value="">-- Scegli un colore --</option>';
+            articolo.colori.forEach(colore => {
+                const option = document.createElement('option');
+                option.value = colore;
+                option.textContent = colore;
+                selectColore.appendChild(option);
+            });
+
+            document.getElementById('colorSection').style.display = 'block';
+            document.getElementById('taglieSection').style.display = 'none';
+            document.getElementById('btnAddArticolo').style.display = 'none';
+        }
+
+        function onColoreSelected() {
+            const colore = document.getElementById('selectColore').value;
+            
+            if (!colore) {
+                document.getElementById('taglieSection').style.display = 'none';
+                document.getElementById('btnAddArticolo').style.display = 'none';
+                tempColore = null;
+                return;
+            }
+
+            tempColore = colore;
+
+            const articolo = catalogo.find(a => a.id === tempArticoloId);
+            
+            const grid = document.getElementById('taglieGrid');
+            grid.innerHTML = '';
+            tempTaglie = {};
+
+            articolo.taglie.forEach(taglia => {
+                tempTaglie[taglia] = 0;
+
+                const div = document.createElement('div');
+                div.className = 'taglia-input';
+
+                const label = document.createElement('div');
+                label.className = 'taglia-label';
+                label.textContent = taglia;
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '0';
+                input.value = '0';
+                input.onchange = (e) => {
+                    tempTaglie[taglia] = parseInt(e.target.value) || 0;
+                };
+
+                div.appendChild(label);
+                div.appendChild(input);
+                grid.appendChild(div);
+            });
+
+            document.getElementById('taglieSection').style.display = 'block';
+            document.getElementById('btnAddArticolo').style.display = 'block';
+        }
+
+        function addArticolo() {
+            if (!tempArticoloId || !tempColore) {
+                showError('Seleziona articolo e colore!');
+                return;
+            }
+
+            const totaleTaglie = Object.values(tempTaglie).reduce((a, b) => a + b, 0);
+            if (totaleTaglie === 0) {
+                showError('Inserisci almeno una quantità!');
+                return;
+            }
+
+            const articolo = catalogo.find(a => a.id === tempArticoloId);
+            const prezzo = catalogoSelezionato === 'nuvola' ? articolo.prezzoNuvola : articolo.prezzoSole;
+
+            ordineArticoli.push({
+                id: tempArticoloId,
+                codice: articolo.codice,
+                nome: articolo.nome,
+                descrizione: articolo.descrizione,
+                colore: tempColore,
+                taglie: { ...tempTaglie },
+                prezzo: prezzo,
+                totaleQuantita: totaleTaglie,
+                totalePrezzo: prezzo * totaleTaglie
+            });
+
+            document.getElementById('selectArticolo').value = '';
+            document.getElementById('selectColore').value = '';
+            document.getElementById('taglieGrid').innerHTML = '';
+            document.getElementById('colorSection').style.display = 'none';
+            document.getElementById('taglieSection').style.display = 'none';
+            document.getElementById('btnAddArticolo').style.display = 'none';
+            tempArticoloId = null;
+            tempColore = null;
+            tempTaglie = {};
+
+            renderArticoliAggiunti();
+            showSuccess('✅ Articolo aggiunto!');
+        }
+
+        function renderArticoliAggiunti() {
+            const container = document.getElementById('articoliAggiunti');
+            const emptyMsg = document.getElementById('emptyMessage');
+
+            if (ordineArticoli.length === 0) {
+                container.innerHTML = '';
+                emptyMsg.style.display = 'block';
+                return;
+            }
+
+            emptyMsg.style.display = 'none';
+            container.innerHTML = '';
+
+            ordineArticoli.forEach((item, index) => {
+                let taglieStr = '';
+                Object.entries(item.taglie).forEach(([taglia, qty]) => {
+                    if (qty > 0) taglieStr += `${taglia}:${qty} `;
+                });
+
+                const div = document.createElement('div');
+                div.className = 'articolo-item';
+
+                const info = document.createElement('div');
+                info.className = 'articolo-info';
+
+                info.innerHTML = `
+                    <div class="articolo-header">${item.codice} - ${item.nome}</div>
+                    <div class="articolo-details">${item.descrizione}</div>
+                    <div class="articolo-details">Colore: <strong>${item.colore}</strong></div>
+                    <div class="articolo-details">Taglie: ${taglieStr}</div>
+                    <div class="articolo-prezzo">€ ${item.totalePrezzo.toFixed(2)}</div>
+                `;
+
+                const actions = document.createElement('div');
+                actions.className = 'articolo-actions';
+
+                const btnDelete = document.createElement('button');
+                btnDelete.className = 'btn-delete';
+                btnDelete.textContent = '❌ Elimina';
+                btnDelete.onclick = () => {
+                    ordineArticoli.splice(index, 1);
+                    renderArticoliAggiunti();
+                    showSuccess('✅ Articolo rimosso!');
+                };
+
+                actions.appendChild(btnDelete);
+
+                div.appendChild(info);
+                div.appendChild(actions);
+                container.appendChild(div);
+            });
+        }
+
+        // ============================================================
+        // RIEPILOGO
+        // ============================================================
+
+        function renderRiepilogo() {
+            document.getElementById('recap-ragione').textContent = document.getElementById('ragioneSociale').value;
+            document.getElementById('recap-piva').textContent = document.getElementById('piva').value;
+            document.getElementById('recap-indirizzo').textContent = document.getElementById('indirizzo').value;
+            document.getElementById('recap-catalogo').textContent = 
+                catalogoSelezionato === 'sole' ? '☀️ Catalogo Sole' : '☁️ Catalogo Nuvola';
+
+            let totalCount = 0;
+            let totalPrice = 0;
+            let htmlArticoli = '<div class="riepilogo-box"><h3 style="margin-top: 0;">Articoli Ordinati</h3><table>';
+            
+            htmlArticoli += '<tr><th>Codice</th><th>Descrizione</th><th>Colore</th><th>Taglie</th><th>Prezzo</th></tr>';
+
+            ordineArticoli.forEach(item => {
+                let taglieStr = '';
+                Object.entries(item.taglie).forEach(([taglia, qty]) => {
+                    if (qty > 0) taglieStr += `${taglia}:${qty} `;
+                });
+
+                totalCount += item.totaleQuantita;
+                totalPrice += item.totalePrezzo;
+
+                htmlArticoli += `
+                    <tr>
+                        <td><strong>${item.codice}</strong></td>
+                        <td>${item.descrizione}</td>
+                        <td>${item.colore}</td>
+                        <td>${taglieStr}</td>
+                        <td>€ ${item.totalePrezzo.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            htmlArticoli += '</table></div>';
+            document.getElementById('recap-articoli').innerHTML = htmlArticoli;
+
+            document.getElementById('recap-count').textContent = totalCount;
+            document.getElementById('recap-totale').textContent = '€ ' + totalPrice.toFixed(2);
+            
+            // Reset firma
+            firmaDisegnata = false;
+            updateFirmaStatus();
+            clearSignature();
+        }
+
+        // ============================================================
+        // SUBMIT
+        // ============================================================
+
+        async function submitOrder() {
+            if (appDisabled) {
+                showError('❌ L\'app è disabilitata!');
+                return;
+            }
+
+            if (!firmaDisegnata) {
+                showError('❌ Devi firmare l\'ordine prima di inviarlo!');
+                return;
+            }
+
+            showSuccess('✅ Ordine firmato e inviato con successo!');
+            
+            setTimeout(() => {
+                document.getElementById('ragioneSociale').value = '';
+                document.getElementById('piva').value = '';
+                document.getElementById('indirizzo').value = '';
+                document.getElementById('emailCliente').value = '';
+                document.getElementById('emailRappresentante').value = '';
+                ordineArticoli = [];
+                catalogoSelezionato = null;
+                tempArticoloId = null;
+                tempColore = null;
+                tempTaglie = {};
+                firmaDisegnata = false;
+                renderArticoliAggiunti();
+                goToStep(1);
+            }, 2000);
+        }
+
+        // ============================================================
+        // ADMIN
+        // ============================================================
+
+        function openAdminModal() {
+            document.getElementById('adminModal').classList.add('show');
+            document.getElementById('adminUsername').value = '';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminUsername').focus();
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('show');
+            document.getElementById('adminUsername').value = '';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function loginAdmin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === 'manager' && password === 'manager123') {
+                showSuccess('✅ Login Manager effettuato!');
+                closeAdminModal();
+            } else if (username === 'admin' && password === 'N\'F8g3gq+KM0') {
+                showSuccess('✅ Login Super Admin effettuato!');
+                closeAdminModal();
+            } else {
+                showError('❌ Credenziali non corrette!');
+            }
+        }
+
+        // ============================================================
+        // UTILITIES
+        // ============================================================
+
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 4000);
+        }
+
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 4000);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAdminModal();
+            }
+        });
+    </script>
+</body>
+</html>
